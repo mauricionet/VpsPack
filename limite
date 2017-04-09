@@ -1,36 +1,56 @@
 #!/bin/bash
-database="/root/usuarios.db"
-echo $$ > /tmp/pids
-if [ ! -f "$database" ]
-then
-	echo "Arquivo /root/usuarios.db não encontrado"
-	exit 1
-fi
-while true
-do
-tput setaf 7 ; tput setab 4 ; tput bold ; printf '%28s%s%-18s\n' "SSH Limiter"
-tput setaf 7 ; tput setab 4 ; printf '  %-30s%s\n' "Usuário" "Conexão/Limite " ; echo "" ; tput sgr0
-	while read usline
-	do
-		user="$(echo $usline | cut -d' ' -f1)"
-		s2ssh="$(echo $usline | cut -d' ' -f2)"
-		if [ -z "$user" ] ; then
-			echo "" > /dev/null
-		else
-			ps x | grep [[:space:]]$user[[:space:]] | grep -v grep | grep -v pts > /tmp/tmp2
-			s1ssh="$(cat /tmp/tmp2 | wc -l)"
-			tput setaf 3 ; tput bold ; printf '  %-35s%s\n' $user $s1ssh/$s2ssh; tput sgr0
-			if [ "$s1ssh" -gt "$s2ssh" ]; then
-				tput setaf 7 ; tput setab 1 ; tput bold ; echo " Usuário desconectado por ultrapassar o limite!" ; tput sgr0
-				while read line
-				do
-					tmp="$(echo $line | cut -d' ' -f1)"
-					kill $tmp
-				done < /tmp/tmp2
-				rm /tmp/tmp2
-			fi
-		fi
-	done < "$database"
-	sleep 5
-	clear
-done
+userrc=$(echo $1 |sed 's/@/aa/g' |sed 's/-/k/g' |sed 's/0/a/g' |sed 's/1/b/g' |sed 's/2/c/g' |sed 's/3/d/g' |sed 's/4/e/g' |sed 's/5/f/g' |sed 's/6/g/g' |sed 's/7/h/g' |sed 's/8/i/g' |sed 's/9/j/g')
+limpcron=$(cat /etc/crontab |grep -v "#$1#")
+echo "$limpcron" > /etc/crontab
+echo "#!/bin/sh
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+sleep 2.5s
+if [ \$(ps -u $1 |grep sshd |wc -l) -gt $2 ]; then ps -u $1 |grep sshd |awk '{print \$1}' > /tmp/sshpid$1; sshpid$userrc=\$(cat -n /tmp/sshpid$1 |awk '\$1 > $2 {print \$2}'); kill \$sshpid$userrc; fi
+exit
+" > /etc/VpsPackdir/limite/$1.sh
+chmod a+x /etc/VpsPackdir/limite/$1.sh 2>/dev/null
+echo "*/1 * * * * root /etc/VpsPackdir/limite/$1.sh #$1#" >> /etc/crontab
+echo -e "\033[1;37mUsuario: \033[1;31m[\033[1;37m$1\033[1;31m]\033[1;37m Limite: \033[1;31m[\033[1;37m$2\033[1;31m] \033[1;37m[\033[1;31mLimite Aplicado\033[1;37m]  \033[0m" 
+echo "$2" > /etc/VpsPackdir/limite/$1
